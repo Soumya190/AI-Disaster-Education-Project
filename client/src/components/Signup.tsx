@@ -17,34 +17,20 @@ const Login = () => {
     //     setValues({ ...values, [e.target.name]: e.target.value })
     // }
 
-    // const responseGoogle = async (authResult: any) => {
-    //     try {
-    //         if (authResult['code']) {
+    const authResponse=async(authResult:any)=>{
+        try{
+            console.log(authResult);
+        }
+        catch(err){
+            console.log(err); 
+        }
+    }
 
-    //             console.log(authResult);
-    //             // axios.post('http://localhost:4000/signup',values)
-    //             // .then((res)=>console.log("Registration Completed Successfully", res))
-    //             // // .catch((err)=>console.log(err));
-    //         }
-
-    //     }
-    //     catch (err) {
-    //         console.log("Error while Requesting Google Code", err);
-    //     }
-    // }
-
-    // const googleLogin = useGoogleLogin({
-    //     onSuccess: responseGoogle,
-    //     onError: responseGoogle,
-    //     flow: 'auth-code'
-    // });
-
-    // const handleSubmit = (e: any) => {
-    //     e.preventDefault();
-    //     axios.post('http://localhost:4000/signup', values)
-    //         .then((res) => console.log("Registration Completed Successfully", res))
-    //         .catch((err) => console.log(err));
-    // }
+    const googleLogin = useGoogleLogin({
+        onSuccess:authResponse,
+        onError:authResponse,
+        flow:'auth-code'
+    })
 
     return (
         <div className="relative min-h-screen bg-[#f8fafc] font-sans flex flex-col overflow-x-hidden">
@@ -83,7 +69,7 @@ const Login = () => {
                     <div className="bg-white p-7 md:p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50">
                         
                         {/* Google Button */}
-                        {/* <button 
+                        <button 
                             onClick={() => 
                             googleLogin()
                         }
@@ -91,7 +77,7 @@ const Login = () => {
                         >
                             <img src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy" alt="google logo" className="w-5 h-5" />
                             <span>Sign up with Google</span>
-                        </button> */}
+                        </button>
 
                         <div className="relative my-4 text-center">
                             <hr className="border-slate-100" />

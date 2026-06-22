@@ -16,30 +16,7 @@ const Login = () => {
     //     setValues({ ...values, [e.target.name]: e.target.value })
     // }
 
-    // const responseGoogle = async (authResult: any) => {
-    //     try {
-    //         if (authResult['code']) {
-
-    //         }
-
-    //     }
-    //     catch (err) {
-    //         console.log("Error while Requesting Google Code", err);
-    //     }
-    // }
-
-    // const googleLogin = useGoogleLogin({
-    //     onSuccess: responseGoogle,
-    //     onError: responseGoogle,
-    //     flow: 'auth-code'
-    // });
-
-    // const handleSubmit = (e: any) => {
-    //     e.preventDefault();
-    //     axios.post('http://localhost:4000/login', values)
-    //         .then((res) => console.log("Registration Completed Successfully", res))
-    //         .catch((err) => console.log(err));
-    // }
+   
 
     return (
         <>
