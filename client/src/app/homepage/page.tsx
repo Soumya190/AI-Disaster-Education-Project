@@ -130,10 +130,10 @@ const Homepage: React.FC = () => {
           </div>
           
           <nav className="hidden md:flex items-center gap-8 lg:gap-10">
-            <a href="#home" className="text-teal-400 border-b-2 border-teal-400 pb-1 text-[14px] font-semibold tracking-wide transition-all">Home</a>
-            <a href="#about" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">About</a>
-            <a href="#features" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">Features</a>
-            <a href="#analysis" className="text-white/60 hover:text-teal-300 text-[14px] font-medium tracking-wide transition-colors duration-300 px-3 py-1.5 rounded-md bg-white/5 hover:bg-teal-500/10 border border-white/10 hover:border-teal-500/30">Analysis</a>
+            <a href="/" className="text-teal-400 border-b-2 border-teal-400 pb-1 text-[14px] font-semibold tracking-wide transition-all">Home</a>
+            <a href="./about" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">About</a>
+            <a href="./features" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">Features</a>
+            <a href="./analysis" className="text-white/60 hover:text-teal-300 text-[14px] font-medium tracking-wide transition-colors duration-300 px-3 py-1.5 rounded-md bg-white/5 hover:bg-teal-500/10 border border-white/10 hover:border-teal-500/30">Analysis</a>
           </nav>
         </header>
 

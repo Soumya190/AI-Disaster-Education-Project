@@ -7,6 +7,8 @@ import Login from './components/Login'
 import { PageNotFound } from './components/PageNotFound'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Homepage from './app/homepage/page'
+import About from './app/about/page'
+import Features from './app/features/page'
 
 function App() {
 
@@ -25,6 +27,8 @@ function App() {
         <Route path='/signup' element={<GoogleAuthWrapper/>}></Route>
         <Route path='/login' element={<Login/>}></Route>
         <Route path='/homepage' element={<Homepage/>}></Route>
+        <Route path='/about' element={<About/>}></Route>
+        <Route path='/features' element={<Features/>}></Route>
         <Route path='/*' element={<PageNotFound/>}></Route>
       </Routes>
     </BrowserRouter>
