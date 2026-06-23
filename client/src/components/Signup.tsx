@@ -7,15 +7,19 @@ import { useState } from "react";
 import axios from 'axios';
 
 const Login = () => {
-    // const [values, setValues] = useState({
-    //     name: '',
-    //     email: '',
-    //     password: "",
-    // })
+    const [values, setValues] = useState({
+        name: '',
+        email: '',
+        password: "",
+    })
 
-    // const handleForm = (e: any) => {
-    //     setValues({ ...values, [e.target.name]: e.target.value })
-    // }
+    const handleForm = (e: any) => {
+        setValues({ ...values, [e.target.name]: e.target.value })
+    }
+
+    const handleSubmit = ()=>{
+        
+    }
 
     const authResponse=async(authResult:any)=>{
         try{
@@ -33,9 +37,9 @@ const Login = () => {
     })
 
     return (
-        <div className="relative min-h-screen bg-[#f8fafc] font-sans flex flex-col overflow-x-hidden">
+        <div className="relative min-h-screen bg-[#F2F2F2] font-sans flex flex-col overflow-x-hidden">
             
-            {/* 1. Floating Navigation - Isolated from the main flex flow */}
+            
             <nav className="absolute top-8 left-8 z-20">
                     <NavLink
                         to="/"
@@ -46,29 +50,26 @@ const Login = () => {
                     </NavLink>
                 </nav>
 
-            {/* 2. Background Elements - Fixed or Absolute to prevent layout shift */}
+            
             <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
                 <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-100/40 rounded-full blur-[120px] animate-pulse" />
                 <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-indigo-100/40 rounded-full blur-[120px]" />
             </div>
 
-            {/* 3. Main Centering Container */}
-            <main className="flex-grow flex items-center justify-center p-6 w-full">
+           
+            <main className="flex-grow flex text-[#111045] items-center justify-center p-6 w-full">
                 <div className="w-full max-w-[460px] z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     
-                    {/* Header Section */}
+                    
                     <div className="text-center mb-4">
-                        <div className="inline-flex items-center justify-center w-16 h-15 md:w-15 md:h-15 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-2xl shadow-blue-200 text-white text-3xl md:text-4xl mb-6 transform hover:rotate-6 transition-transform">
-                            🛡️
-                        </div>
                         <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">Create Account</h1>
                         <p className="text-slate-500 mt-2 font-medium text-sm">Join the network and start building.</p>
                     </div>
 
-                    {/* Form Card */}
+                    
                     <div className="bg-white p-7 md:p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50">
                         
-                        {/* Google Button */}
+                        
                         <button 
                             onClick={() => 
                             googleLogin()
@@ -86,7 +87,7 @@ const Login = () => {
                             </span>
                         </div>
 
-                        {/* <form className="space-y-4 md:space-y-3" onSubmit={handleSubmit}>
+                        <form className="space-y-4 md:space-y-3" onSubmit={handleSubmit}>
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
                                 <input
@@ -129,7 +130,7 @@ const Login = () => {
                             <button type="submit" className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98] mt-4">
                                 Create Free Account
                             </button>
-                        </form> */}
+                        </form>
                     </div>
 
                     {/* Footer */}

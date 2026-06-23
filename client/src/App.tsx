@@ -6,6 +6,7 @@ import {Navigate, BrowserRouter, Route, Routes, redirect } from 'react-router-do
 import Login from './components/Login'
 import { PageNotFound } from './components/PageNotFound'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import Homepage from './app/homepage/page'
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
         <Route path='/' element={<Navigate to={`/Signup`}/>}></Route>
         <Route path='/signup' element={<GoogleAuthWrapper/>}></Route>
         <Route path='/login' element={<Login/>}></Route>
+        <Route path='/homepage' element={<Homepage/>}></Route>
         <Route path='/*' element={<PageNotFound/>}></Route>
       </Routes>
     </BrowserRouter>

@@ -7,20 +7,22 @@ import { useState } from "react";
 import axios from 'axios';
 
 const Login = () => {
-    // const [values, setValues] = useState({
-    //     email: '',
-    //     password: "",
-    // })
+    const [values, setValues] = useState({
+        email: '',
+        password: "",
+    })
 
-    // const handleForm = (e: any) => {
-    //     setValues({ ...values, [e.target.name]: e.target.value })
-    // }
+    const handleForm = (e: any) => {
+        setValues({ ...values, [e.target.name]: e.target.value })
+    }
 
-   
+   const handleSubmit= ()=>{
+    
+   }
 
     return (
         <>
-            <div className="min-h-screen bg-[#f8fafc] relative overflow-hidden font-sans">
+            <div className="min-h-screen bg-[#F2F2F2] relative overflow-hidden font-sans">
                 {/* Background Decorative Elements */}
                 <div className="absolute top-0 left-0 w-full h-full -z-10 pointer-events-none">
                     <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[100px]" />
@@ -56,7 +58,7 @@ const Login = () => {
                         </div>
 
                         {/* Form Card */}
-                        {/* <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white">
+                        <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white">
                             <form className="space-y-6" onSubmit={handleSubmit}>
 
                                 <div className="space-y-2">
@@ -99,7 +101,7 @@ const Login = () => {
                                     Sign In
                                 </button>
                             </form>
-                        </div> */}
+                        </div>
 
                         {/* Footer Link */}
                         <p className="text-center mt-10 text-slate-500 font-medium">
