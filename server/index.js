@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import nodemon from 'nodemon';
+import router from './routes/authRouter.ts';
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.get('/',(req,res)=>{
 app.listen(PORT,()=>{
     console.log(`Server is running on PORT : ${PORT}`);
 })
+
+app.use('/auth',router);
 
 
 bg2textcolorconstract: [["#ACDDE6","#10461C"],]

@@ -1,12 +1,15 @@
 
 // import Link from "next/link";
-import { NavLink } from "react-router-dom";
+import { NavLink,useNavigate } from "react-router-dom";
 // import { useSearchParams } from "next/navigation";
 import { useGoogleLogin } from '@react-oauth/google'
 import { useState } from "react";
 import axios from 'axios';
 
 const Login = () => {
+
+    const navigate = useNavigate();
+
     const [values, setValues] = useState({
         name: '',
         email: '',
@@ -17,16 +20,27 @@ const Login = () => {
         setValues({ ...values, [e.target.name]: e.target.value })
     }
 
+    const handleFormSubmit=(e:any)=>{
+        e.preventDefault();
+    }
+
     const handleSubmit = ()=>{
+        navigate('/login');
         
+        // if(values.name&&values.email&&values.password!=''){
+        // <Navigate to={`/Login`}/>
+        // }
     }
 
     const authResponse=async(authResult:any)=>{
         try{
+            if(authResult.code){
+
+            }
             console.log(authResult);
         }
         catch(err){
-            console.log(err); 
+            console.log("Error generating auth code:",err); 
         }
     }
 
@@ -87,7 +101,7 @@ const Login = () => {
                             </span>
                         </div>
 
-                        <form className="space-y-4 md:space-y-3" onSubmit={handleSubmit}>
+                        <form className="space-y-4 md:space-y-3" onClick={handleFormSubmit}>
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
                                 <input
@@ -127,7 +141,7 @@ const Login = () => {
                                 />
                             </div>
 
-                            <button type="submit" className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98] mt-4">
+                            <button type="submit" onClick={handleSubmit} className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98] mt-4">
                                 Create Free Account
                             </button>
                         </form>
