@@ -8,6 +8,8 @@ dotenv.config();
 const app =  express();
 const PORT = process.env.PORT;
 
+import models from './models/dbConnections.ts';
+
 app.get('/',(req,res)=>{
     res.send('Server is running');
 })
