@@ -1,10 +1,6 @@
 
-// import Link from "next/link";
 import { NavLink } from "react-router-dom";
-// import { useSearchParams } from "next/navigation";
-import { useGoogleLogin } from '@react-oauth/google'
 import { useState } from "react";
-import axios from 'axios';
 
 const Login = () => {
     const [values, setValues] = useState({
