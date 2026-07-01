@@ -4,7 +4,7 @@ import { NavLink,useNavigate } from "react-router-dom";
 // import { useSearchParams } from "next/navigation";
 import { useGoogleLogin } from '@react-oauth/google'
 import { useState } from "react";
-import axios from 'axios';
+import {googleAuth} from "./api"
 
 const Login = () => {
 
@@ -35,9 +35,16 @@ const Login = () => {
     const authResponse=async(authResult:any)=>{
         try{
             if(authResult.code){
+                const result = await googleAuth(authResult.code);
+                const{email,name,image}= result.data.user
+                console.log(result.data.user);
+                const token = result.data.token;
+                const obj = {email,name,image,token};
 
+                localStorage.setItem('user-info',JSON.stringify(obj));
+
+                navigate('/homepage');
             }
-            console.log(authResult);
         }
         catch(err){
             console.log("Error generating auth code:",err); 

@@ -59,7 +59,7 @@ const FeaturesPage: React.FC = () => {
       title: "Instant Warning Alerts",
       description: "Low-latency streaming telemetry that pushes localized severe weather warnings and structural anomaly alerts directly to your console before disaster impacts.",
       colorClass: "from-red-500/10 via-transparent to-transparent",
-      path: "/alerts"
+      path: "/Alerts"
     },
     {
       icon: "🕹️",

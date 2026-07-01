@@ -7,6 +7,6 @@ router.get('/test',(req,res)=>{
     res.send("test page");
 })
 
-router.post('/google',googleLogin);
+router.get('/google',googleLogin);
 
 export default router;

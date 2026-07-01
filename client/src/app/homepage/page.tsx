@@ -1,9 +1,16 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect,useState, useRef } from 'react';
 import * as THREE from 'three';
 
 const Homepage: React.FC = () => {
+  const[userInfo,setUserInfo] = useState(null);
   const mountRef = useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    const data = localStorage.getItem('user-info');
+    const userData = JSON.parse(data);
+    setUserInfo(userData);
+  },[]);
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -134,6 +141,7 @@ const Homepage: React.FC = () => {
             <a href="./about" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">About</a>
             <a href="./features" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">Features</a>
             <a href="./analysis" className="text-white/60 hover:text-teal-300 text-[14px] font-medium tracking-wide transition-colors duration-300 px-3 py-1.5 rounded-md bg-white/5 hover:bg-teal-500/10 border border-white/10 hover:border-teal-500/30">Analysis</a>
+            <img src={userInfo?.image} alt="User Image" className='h-10 w-10 round-cover object-cover' />
           </nav>
         </header>
 
