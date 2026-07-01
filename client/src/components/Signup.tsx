@@ -6,7 +6,7 @@ import { useGoogleLogin } from '@react-oauth/google'
 import { useState } from "react";
 import {googleAuth} from "./api"
 
-const Login = () => {
+const Signup = () => {
 
     const navigate = useNavigate();
 
@@ -37,12 +37,11 @@ const Login = () => {
             if(authResult.code){
                 const result = await googleAuth(authResult.code);
                 const{email,name,image}= result.data.user
-                console.log(result.data.user);
+                // console.log(result.data.user);
                 const token = result.data.token;
                 const obj = {email,name,image,token};
 
                 localStorage.setItem('user-info',JSON.stringify(obj));
-
                 navigate('/homepage');
             }
         }
@@ -167,4 +166,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Signup;

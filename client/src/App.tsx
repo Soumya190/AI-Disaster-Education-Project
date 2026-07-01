@@ -2,11 +2,11 @@
 import Signup from './components/Signup'
 
 import './App.css'
-import {Navigate, BrowserRouter, Route, Routes, redirect } from 'react-router-dom'
+import {Navigate, BrowserRouter, Route, Routes } from 'react-router-dom'
 import Login from './components/Login'
 import { PageNotFound } from './components/PageNotFound'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import Homepage from './app/homepage/page'
+import Homepage from './components/Homepage'
 import About from './app/about/page'
 import Features from './app/features/page'
 import Alerts from './components/Alerts'
