@@ -9,6 +9,7 @@ import {googleAuth} from "./api"
 const Signup = () => {
 
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
 
     const [values, setValues] = useState({
         name: '',
@@ -20,9 +21,31 @@ const Signup = () => {
         setValues({ ...values, [e.target.name]: e.target.value })
     }
 
-    const handleFormSubmit=(e:any)=>{
+    const handleFormSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-    }
+        
+        if (!values.name || !values.email || !values.password) {
+            alert("Please fill in all standard fields.");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            
+            // TODO: Connect your native custom register API here if you have one:
+            // const result = await registerUser(values);
+            // localStorage.setItem('user-info', JSON.stringify(result.data));
+            
+            console.log("Form processing details submitted safely:", values);
+            
+            // For now, redirecting to login to clear credentials cleanly
+            navigate('/login');
+        } catch (err) {
+            console.error("Signup request failed:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleSubmit = ()=>{
         navigate('/login');
@@ -32,23 +55,38 @@ const Signup = () => {
         // }
     }
 
-    const authResponse=async(authResult:any)=>{
-        try{
-            if(authResult.code){
-                const result = await googleAuth(authResult.code);
-                const{email,name,image}= result.data.user
-                // console.log(result.data.user);
-                const token = result.data.token;
-                const obj = {email,name,image,token};
+    const authResponse = async (authResult: any) => {
+        try {
+            // Guard clause if user closed popup window manually or failed authorization
+            if (!authResult || !authResult.code) {
+                console.warn("Google Authentication initialization was bypassed or aborted.");
+                return;
+            }
 
-                localStorage.setItem('user-info',JSON.stringify(obj));
-                navigate('/homepage');
+            setIsLoading(true);
+            const result = await googleAuth(authResult.code);
+            
+            if (result?.data?.user) {
+                const { email, name, image } = result.data.user;
+                const token = result.data.token;
+                const obj = { email, name, image, token };
+
+                // Commit user session details to disk securely
+                localStorage.setItem('user-info', JSON.stringify(obj));
+                
+                // Break standard navigation cycle loops via window.location to reset React state gates
+                window.location.href = '/homepage';
+            } else {
+                throw new Error("Invalid payload structure returned from authentication endpoints.");
             }
         }
-        catch(err){
-            console.log("Error generating auth code:",err); 
+        catch (err) {
+            console.error("Error generating auth credentials pipeline:", err); 
+            alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
+        } finally {
+            setIsLoading(false);
         }
-    }
+    };
 
     const googleLogin = useGoogleLogin({
         onSuccess:authResponse,
@@ -107,7 +145,7 @@ const Signup = () => {
                             </span>
                         </div>
 
-                        <form className="space-y-4 md:space-y-3" onClick={handleFormSubmit}>
+                        <form className="space-y-4 md:space-y-3" onSubmit={handleFormSubmit}>
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
                                 <input

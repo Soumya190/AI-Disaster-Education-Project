@@ -1,8 +1,7 @@
-// import Signup from './components/Signup'
+// import React from 'react'
 import Signup from './components/Signup'
-
 import './App.css'
-import { Navigate, BrowserRouter, Route, Routes } from 'react-router-dom'
+import { Navigate, BrowserRouter, Route, Routes, Outlet } from 'react-router-dom'
 import Login from './components/Login'
 import { PageNotFound } from './components/PageNotFound'
 import { GoogleOAuthProvider } from '@react-oauth/google'
@@ -11,23 +10,27 @@ import About from './app/about/page'
 import Features from './app/features/page'
 import Alerts from './components/Alerts'
 
+const checkAuthStatus = (): boolean => {
+  const userInfo = localStorage.getItem('user-info');
+  if (!userInfo) return false;
+
+  try {
+    const parsed = JSON.parse(userInfo);
+    return !!(parsed && (parsed.email || parsed.token));
+  } catch (error) {
+    return false;
+  }
+};
+
+const ProtectedRouteGuard = () => {
+  return checkAuthStatus() ? <Outlet /> : <Navigate to="/signup" replace />;
+};
+
+const PublicRouteGuard = () => {
+  return !checkAuthStatus() ? <Outlet /> : <Navigate to="/homepage" replace />;
+};
+
 function App() {
-
-  const isAuthenticated = () => {
-    const userInfo = localStorage.getItem('user-info');
-    if (!userInfo) return false;
-
-    try {
-      const parsed = JSON.parse(userInfo);
-      
-      return !!parsed.token;
-    } catch (error) {
-      return false;
-    }
-  };
-
-  console.log("isAuthenticated:",isAuthenticated());
-
   const clientID = '1034823575253-7muj29cpa2tt48kob2brue9hafp75ide.apps.googleusercontent.com';
 
   return (
@@ -37,29 +40,22 @@ function App() {
           
           <Route
             path='/'
-            element={isAuthenticated() ? <Navigate to="/homepage" replace /> : <Navigate to="/signup" replace />}
+            element={checkAuthStatus() ? <Navigate to="/homepage" replace /> : <Navigate to="/signup" replace />}
           />
 
-          
-          <Route
-            path='/signup'
-            element={isAuthenticated()  ? <Navigate to="/homepage" replace /> : <Signup />}
-          />
-          <Route
-            path='/login'
-            element={isAuthenticated()  ? <Navigate to="/homepage" replace /> : <Login />}
-          />
+          <Route element={<PublicRouteGuard />}>
+            <Route path='/signup' element={<Signup />} />
+            <Route path='/login' element={<Login />} />
+          </Route>
 
-         
-          <Route
-            path='/homepage'
-            element={isAuthenticated()  ? <Homepage /> : <Navigate to="/signup" replace />}
-          />
+          <Route element={<ProtectedRouteGuard />}>
+            <Route path='/homepage' element={<Homepage />} />
+          </Route>
 
-          
           <Route path='/about' element={<About />} />
           <Route path='/alerts' element={<Alerts />} />
           <Route path='/features' element={<Features />} />
+          
           <Route path='/*' element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
@@ -67,4 +63,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

@@ -1,23 +1,63 @@
 
 import React, { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 // import googleLogin from '../../../../server/controllers/authController.ts';
 import * as THREE from 'three';
 
 type UserInfo = {
   image?: string;
+  name?: string;
+  email?: string;
   [key: string]: unknown;
 };
 
 const Homepage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
   const mountRef = useRef<HTMLDivElement>(null);
+  // const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  // const mountRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  // const navigate = useNavigate()
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const data = localStorage.getItem('user-info');
-    const userData = JSON.parse(data || '{}');
-    setUserInfo(userData);
-    console.log("User Info:", userInfo);
+    
+    if (!data) {
+      navigate('/signup', { replace: true });
+      return;
+    }
+
+    try {
+      const userData = JSON.parse(data);
+      setUserInfo(userData);
+      console.log("User session verified on homepage:", userData);
+    } catch (e) {
+      console.error("Corrupted session object detected. Clearing local records.");
+      localStorage.removeItem('user-info');
+      navigate('/signup', { replace: true });
+    }
+  }, [navigate]);
+
+  // 2. CLOSE MENUS ON OUTSIDE CLICK CLICK
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('user-info');
+    // Wipes state tracking immediately to halt any background triggers before navigating
+    setUserInfo(null); 
+    navigate('/signup', { replace: true });
+  };
 
   useEffect(() => {
     const currentMount = mountRef.current;
@@ -122,6 +162,7 @@ const Homepage: React.FC = () => {
     };
   }, []);
 
+
   return (
     <div className="relative w-full min-h-screen bg-[#020806] text-white overflow-hidden font-sans selection:bg-teal-500/30">
 
@@ -148,9 +189,38 @@ const Homepage: React.FC = () => {
             <a href="./about" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">About</a>
             <a href="./features" className="text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300 relative after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 hover:after:w-full after:bg-teal-400 after:transition-all">Features</a>
             <a href="./analysis" className="text-white/60 hover:text-teal-300 text-[14px] font-medium tracking-wide transition-colors duration-300 px-3 py-1.5 rounded-md bg-white/5 hover:bg-teal-500/10 border border-white/10 hover:border-teal-500/30">Analysis</a>
-            <img src={userInfo?.image} onError={(e) => {
+            {/* <img src={userInfo?.image} onError={(e) => {
               e.currentTarget.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + userInfo?.name;
-            }} alt="User Image" className='h-10  w-10 rounded-full object-cover' />
+            }} alt="User Image" className='h-10  w-10 rounded-full object-cover' onMouseOver={() => { <button className='relative top-15 w-20 h-10 text-white-300 mouse-'>Sign Out</button> }} /> */}
+            {/* <a onClick={handleSignOut} className="cursor-pointer text-white/60 hover:text-white text-[14px] font-medium tracking-wide transition-colors duration-300">
+              Sign Out
+            </a> */}
+            <div className="relative" ref={dropdownRef}>
+              <img 
+                src={userInfo?.image || ""} 
+                onError={(e) => {
+                  e.currentTarget.src = "https://api.dicebear.com/7.x/initials/svg?seed=" + (userInfo?.name || "User");
+                }} 
+                alt="User Menu Avatar" 
+                className='h-10 w-10 rounded-full object-cover border border-teal-500/30 shadow-md cursor-pointer hover:scale-105 transition-transform'
+                onClick={() => setShowDropdown(!showDropdown)}
+              />
+
+              {showDropdown && (
+                <div className="absolute right-0 mt-3 w-52 rounded-xl border border-white/10 bg-[#071410]/95 p-3 shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200 z-50">
+                  <div className="px-2 py-1.5 border-b border-white/5 mb-2">
+                    <p className="text-xs font-bold text-teal-300 truncate">{userInfo?.name || "Active Session"}</p>
+                    <p className="text-[10px] text-white/40 truncate">{userInfo?.email || ""}</p>
+                  </div>
+                  <button 
+                    onClick={handleSignOut}
+                    className="w-full px-3 py-2 text-xs font-semibold text-center text-red-200 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </nav>
         </header>
 

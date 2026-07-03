@@ -1,20 +1,64 @@
-
+import { googleAuth } from "./api";
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google"; // Added missing import
 
 const Login = () => {
     const [values, setValues] = useState({
         email: '',
         password: "",
-    })
+    });
 
-    const handleForm = (e: any) => {
-        setValues({ ...values, [e.target.name]: e.target.value })
-    }
+    // Added missing loading state
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-   const handleSubmit= ()=>{
-    
-   }
+    const handleForm = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setValues({ ...values, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        // Handle your custom credentials login flow here
+        console.log("Form submitted values:", values);
+    };
+
+    const authResponse = async (authResult: any) => {
+        try {
+            if (!authResult || !authResult.code) {
+                console.warn("Google Authentication initialization was bypassed or aborted.");
+                return;
+            }
+
+            setIsLoading(true);
+            const result = await googleAuth(authResult.code);
+
+            if (result?.data?.user) {
+                const { email, name, image } = result.data.user;
+                const token = result.data.token;
+                const obj = { email, name, image, token };
+
+                // Commit user session details to disk securely
+                localStorage.setItem('user-info', JSON.stringify(obj));
+
+                // Break standard navigation cycle loops via window.location to reset React state gates
+                window.location.href = '/homepage';
+            } else {
+                throw new Error("Invalid payload structure returned from authentication endpoints.");
+            }
+        }
+        catch (err) {
+            console.error("Error generating auth credentials pipeline:", err);
+            alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const googleLogin = useGoogleLogin({
+        onSuccess: authResponse,
+        onError: authResponse,
+        flow: 'auth-code'
+    });
 
     return (
         <>
@@ -42,10 +86,7 @@ const Login = () => {
 
                         {/* Logo / Branding */}
                         <div className="text-center mb-8">
-                            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-3xl shadow-2xl shadow-blue-200 text-white text-4xl mb-6 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-                                🛡️
-                            </div>
-                            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-4">
                                 Welcome Back
                             </h1>
                             <p className="text-slate-500 font-medium">
@@ -58,6 +99,22 @@ const Login = () => {
                             <form className="space-y-6" onSubmit={handleSubmit}>
 
                                 <div className="space-y-2">
+                                    <button
+                                        type="button"
+                                        disabled={isLoading}
+                                        onClick={() => googleLogin()}
+                                        className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 py-2.5 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98] disabled:opacity-50"
+                                    >
+                                        <img src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy" alt="google logo" className="w-5 h-5" />
+                                        <span>{isLoading ? "Connecting..." : "Sign up with Google"}</span>
+                                    </button>
+
+                                    <div className="relative my-6 text-center">
+                                        <hr className="border-slate-200" />
+                                        <span className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#F2F2F2] px-4 text-[8.6px] font-black text-slate-400 uppercase tracking-widest">
+                                            Or continue with email
+                                        </span>
+                                    </div>
                                     <label className="text-sm font-bold text-slate-700 ml-1">
                                         Email Address
                                     </label>
@@ -92,9 +149,10 @@ const Login = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-200 transition-all active:scale-[0.98] mt-2"
+                                    disabled={isLoading}
+                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg shadow-slate-200 transition-all active:scale-[0.98] mt-2 disabled:opacity-50"
                                 >
-                                    Sign In
+                                    {isLoading ? "Verifying..." : "Sign In"}
                                 </button>
                             </form>
                         </div>
