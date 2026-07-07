@@ -32,13 +32,12 @@ const Signup = () => {
         try {
             setIsLoading(true);
             
-            // TODO: Connect your native custom register API here if you have one:
             // const result = await registerUser(values);
             // localStorage.setItem('user-info', JSON.stringify(result.data));
             
             console.log("Form processing details submitted safely:", values);
             
-            // For now, redirecting to login to clear credentials cleanly
+            
             navigate('/login');
         } catch (err) {
             console.error("Signup request failed:", err);
@@ -96,7 +95,7 @@ const Signup = () => {
 
     return (
         <div className="relative min-h-screen bg-[#F2F2F2] font-sans flex flex-col overflow-x-hidden">
-            
+            <p>isLoading: {isLoading.toString()}</p>
             
             <nav className="absolute top-8 left-8 z-20">
                     <NavLink
