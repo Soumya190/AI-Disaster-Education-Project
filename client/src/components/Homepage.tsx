@@ -181,7 +181,7 @@ const Homepage: React.FC = () => {
 
         <header className="flex justify-between items-center px-6 md:px-16 lg:px-24 py-6 w-full backdrop-blur-sm bg-black/5 border-b border-white/5 animate-fade-in">
           <div className="text-xl md:text-2xl font-black tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-teal-200 to-emerald-400 cursor-pointer">
-            AURA.<span className="text-white">SHIELD</span>
+            Disaster<span className="text-white">Prep</span>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 lg:gap-10">
@@ -265,7 +265,7 @@ const Homepage: React.FC = () => {
 
 
         <footer className="w-full text-center py-6 text-white/30 text-xs tracking-wider border-t border-white/5 bg-black/10">
-          © 2026 Aura Shield Initiative. All rights reserved.
+          © 2026 DisasterPrep Initiative. All rights reserved.
         </footer>
       </div>
     </div>

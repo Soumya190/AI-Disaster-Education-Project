@@ -22,7 +22,17 @@ const VisionBlock: React.FC<VisionBlockProps> = ({ icon, title, description }) =
 const AboutPage: React.FC = () => {
   return (
     <div className="relative min-h-screen bg-[#020806] text-white font-sans overflow-x-hidden selection:bg-teal-500/30">
-      
+
+      <nav className="absolute top-8 left-8 z-20">
+        <NavLink
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 backdrop-blur-md  text-slate-600 font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-95 group"
+        >
+          <span className="group-hover:-translate-x-1 transition-transform">←</span>
+          Back
+        </NavLink>
+      </nav>
+
       {/* Cohesive Background Aurora Gradients */}
       <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] right-[10%] w-[600px] h-[600px] bg-teal-950/20 rounded-full blur-[140px] animate-[pulse_12s_infinite_alternate]" />
@@ -30,7 +40,7 @@ const AboutPage: React.FC = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 md:px-16 lg:px-24 py-20 min-h-screen flex flex-col justify-center">
-        
+
         {/* Header Introduction */}
         <div className="max-w-3xl mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-teal-500/20 bg-teal-950/30 text-teal-300 text-xs font-semibold tracking-widest uppercase mb-4">
@@ -46,26 +56,26 @@ const AboutPage: React.FC = () => {
 
         {/* Core Pillars Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16 animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-100">
-          
-          <VisionBlock 
+
+          <VisionBlock
             icon="🛰️"
             title="Real-Time Telemetry & Warnings"
             description="Stay ahead of sudden events. The platform continuously monitors atmospheric anomalies to deliver streaming, localized early warning data tracking precisely when and how quickly a localized disaster is developing."
           />
 
-          <VisionBlock 
+          <VisionBlock
             icon="🧠"
             title="Location-Aware Contextual AI"
             description="An intelligent fallback companion. By analyzing your active coordinates combined with current hyper-local weather parameters, our integrated AI immediately parses live data to output customized, immediate protective checklists."
           />
 
-          <VisionBlock 
+          <VisionBlock
             icon="🎮"
             title="Gamified Virtual Response Drills"
             description="Move past boring textbooks. Students cultivate tactical memory by actively navigating real-world threat models through interactive games, scenario modules, and simulated decision trees."
           />
 
-          <VisionBlock 
+          <VisionBlock
             icon="📊"
             title="Preparedness Metrics & Analytics"
             description="Track your survival readiness. Dynamic personal charts continuously process data from your training history and drills, visually grading your emergency defense mastery to highlight where you need to improve."
@@ -78,7 +88,7 @@ const AboutPage: React.FC = () => {
           <div className="text-sm text-white/40 max-w-md text-center sm:text-left">
             Ready to replace uncertainty with tactical situational awareness? Dive into the environment.
           </div>
-          <NavLink 
+          <NavLink
             to="/features"
             className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 text-black font-bold text-sm tracking-wide shadow-[0_0_25px_rgba(20,184,166,0.2)] hover:shadow-[0_0_35px_rgba(20,184,166,0.4)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 w-full sm:w-auto text-center"
           >

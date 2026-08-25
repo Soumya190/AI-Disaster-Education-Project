@@ -95,7 +95,7 @@ const Signup = () => {
 
     return (
         <div className="relative min-h-screen bg-[#F2F2F2] font-sans flex flex-col overflow-x-hidden">
-            <p>isLoading: {isLoading.toString()}</p>
+            {/* <p>isLoading: {isLoading.toString()}</p> */}
             
             <nav className="absolute top-8 left-8 z-20">
                     <NavLink
