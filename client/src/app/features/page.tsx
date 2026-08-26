@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-// Interfaces for our core app module features
 interface FeatureCardProps {
   icon: string;
   badge: string;
@@ -17,7 +16,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, badge, title, descripti
       to={path}
       className="group relative block w-full text-left bg-white/[0.03] backdrop-blur-md border border-white/10 rounded-[2rem] p-8 transition-all duration-300 hover:bg-white/[0.06] hover:border-teal-500/30 hover:shadow-[0_0_30px_rgba(20,184,166,0.15)] hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-teal-500/50"
     >
-      {/* Absolute background accent hint on hover */}
       <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2rem] bg-[radial-gradient(circle_at_center,var(--tw-gradient-stops))] ${colorClass} blur-xl -z-10 pointer-events-none`} />
 
       <div className="flex items-start justify-between mb-6">
@@ -43,7 +41,6 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, badge, title, descripti
 };
 
 const FeaturesPage: React.FC = () => {
-  // Configured local routing paths for each core app module
   const coreFeatures = [
     {
       icon: "📚",
@@ -51,7 +48,7 @@ const FeaturesPage: React.FC = () => {
       title: "Disaster Learning Modules",
       description: "Interactive, data-driven courses detailing various natural hazards. Understand structural vulnerability, atmospheric physics, and actionable science behind global weather anomalies.",
       colorClass: "from-blue-500/10 via-transparent to-transparent",
-      path: "/modules"
+      path: "/features/modules"
     },
     {
       icon: "🚨",

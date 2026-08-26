@@ -8,43 +8,29 @@ import {googleAuth} from "./api"
 
 const Signup = () => {
 
+    const initialValues = {
+        name : '',
+        email:'',
+        password:''
+    }
+
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
 
-    const [values, setValues] = useState({
-        name: '',
-        email: '',
-        password: "",
-    })
+    const [formValues, setformValues] = useState(initialValues);
 
-    const handleForm = (e: any) => {
-        setValues({ ...values, [e.target.name]: e.target.value })
-    }
-
-    const handleFormSubmit = async (e: React.FormEvent) => {
+    
+    const handleFormSubmit = async (e: any) => {
         e.preventDefault();
-        
-        if (!values.name || !values.email || !values.password) {
-            alert("Please fill in all standard fields.");
-            return;
-        }
-
-        try {
-            setIsLoading(true);
-            
-            // const result = await registerUser(values);
-            // localStorage.setItem('user-info', JSON.stringify(result.data));
-            
-            console.log("Form processing details submitted safely:", values);
-            
-            
-            navigate('/login');
-        } catch (err) {
-            console.error("Signup request failed:", err);
-        } finally {
-            setIsLoading(false);
-        }
     };
+
+    const handleForm=(e:any)=>{
+        const {name,value} = e.target;
+
+        setformValues({...formValues,[name]:value});
+
+        console.log(formValues);
+    }
 
     const handleSubmit = ()=>{
         navigate('/login');
@@ -151,7 +137,7 @@ const Signup = () => {
                                     name="name"
                                     type="text"
                                     required
-                                    value={values.name}
+                                    value={formValues.name}
                                     onChange={handleForm}
                                     placeholder="Enter your name"
                                     className="w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
@@ -164,7 +150,7 @@ const Signup = () => {
                                     name="email"
                                     type="email"
                                     required
-                                    value={values.email}
+                                    value={formValues.email}
                                     onChange={handleForm}
                                     placeholder="name@company.com"
                                     className="w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
@@ -177,7 +163,7 @@ const Signup = () => {
                                     name="password"
                                     type="password"
                                     required
-                                    value={values.password}
+                                    value={formValues.password}
                                     onChange={handleForm}
                                     placeholder="••••••••"
                                     className="w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"

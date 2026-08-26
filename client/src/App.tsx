@@ -9,6 +9,9 @@ import Homepage from './components/Homepage'
 import About from './app/about/page'
 import Features from './app/features/page'
 import Alerts from './components/Alerts'
+import Modules from './app/features/modules/page'
+import Drills from './components/Drills'
+import Analysis from './components/Analysis'
 
 const checkAuthStatus = (): boolean => {
   const userInfo = localStorage.getItem('user-info');
@@ -55,6 +58,10 @@ function App() {
           <Route path='/about' element={<About />} />
           <Route path='/alerts' element={<Alerts />} />
           <Route path='/features' element={<Features />} />
+          <Route path='/features/modules' element={<Modules/>}/>
+          <Route path='/drills' element={<Drills/>}/>
+          <Route path='/alerts' element={<Alerts/>}/>
+          <Route path='/analysis' element={<Analysis/>}/>
           
           <Route path='/*' element={<PageNotFound />} />
         </Routes>
