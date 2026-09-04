@@ -12,6 +12,11 @@ import Alerts from './components/Alerts'
 import Modules from './app/features/modules/page'
 import Drills from './components/Drills'
 import Analysis from './components/Analysis'
+import EarthquakeModule from './app/features/modules/earthquake/page'
+import FloodModule from './app/features/modules/flood/page'
+import CycloneModule from './app/features/modules/cyclone/page'
+import HeatwavesModule from './app/features/modules/heatwaves/page'
+import DroughtModule from './app/features/modules/drought/page'
 
 const checkAuthStatus = (): boolean => {
   const userInfo = localStorage.getItem('user-info');
@@ -62,7 +67,11 @@ function App() {
           <Route path='/drills' element={<Drills/>}/>
           <Route path='/alerts' element={<Alerts/>}/>
           <Route path='/analysis' element={<Analysis/>}/>
-          
+          <Route path='/earthquake' element={<EarthquakeModule/>}/>
+          <Route path='/flood' element={<FloodModule/>}/>
+          <Route path='/cyclone' element={<CycloneModule/>}/>
+          <Route path='/heatwave' element={<HeatwavesModule/>}/>
+          <Route path='/drought' element={<DroughtModule/>}/>
           <Route path='/*' element={<PageNotFound />} />
         </Routes>
       </BrowserRouter>
