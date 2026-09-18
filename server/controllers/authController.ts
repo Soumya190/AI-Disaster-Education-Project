@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 
 import {OAuth2Client} from 'google-auth-library';
 import axios from 'axios';
-import UserModel from '../models/userModel.ts';
+import UserModel from '../models/userModel';
 
 
 const client = new OAuth2Client(

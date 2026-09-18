@@ -1,5 +1,5 @@
 import mysql from 'mysql2';
-import db from '../models/dbConnections.ts';
+import db from '../models/dbConnections';
 
 
 class UserModel {

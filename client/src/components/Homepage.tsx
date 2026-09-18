@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import googleLogin from '../../../../server/controllers/authController.ts';
 import * as THREE from 'three';
 
 type UserInfo = {
@@ -41,7 +40,6 @@ const Homepage: React.FC = () => {
     }
   }, [navigate]);
 
-  // 2. CLOSE MENUS ON OUTSIDE CLICK CLICK
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -54,7 +52,6 @@ const Homepage: React.FC = () => {
 
   const handleSignOut = () => {
     localStorage.removeItem('user-info');
-    // Wipes state tracking immediately to halt any background triggers before navigating
     setUserInfo(null); 
     navigate('/signup', { replace: true });
   };
@@ -83,8 +80,8 @@ const Homepage: React.FC = () => {
     auroraGlowLight.position.set(-5, 3, -2);
     scene.add(auroraGlowLight);
 
-    // Particle Setup (Star Field)
-    const starCount = 600; // Increased count for richer field
+  
+    const starCount = 600;
     const starGeometry = new THREE.BufferGeometry();
     const starPositions = new Float32Array(starCount * 3);
     const starSpeeds = new Float32Array(starCount);
@@ -93,7 +90,7 @@ const Homepage: React.FC = () => {
       starPositions[i] = (Math.random() - 0.5) * 18;
       starPositions[i + 1] = (Math.random() - 0.5) * 18;
       starPositions[i + 2] = (Math.random() - 0.8) * 12;
-      starSpeeds[i / 3] = 0.1 + Math.random() * 0.4; // Custom drift speed per star
+      starSpeeds[i / 3] = 0.1 + Math.random() * 0.4;
     }
 
     starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
@@ -109,7 +106,6 @@ const Homepage: React.FC = () => {
     const starField = new THREE.Points(starGeometry, starMaterial);
     scene.add(starField);
 
-    // Mouse Tracking for Parallax Effect
     let mouseX = 0;
     let mouseY = 0;
     const handleMouseMove = (event: MouseEvent) => {
@@ -125,11 +121,9 @@ const Homepage: React.FC = () => {
       animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
-      // Slow dynamic rotation
       starField.rotation.y = elapsedTime * -0.008;
       starField.rotation.x = elapsedTime * 0.003;
 
-      // Smooth mouse parallax interpolation (Lerp)
       camera.position.x += (mouseX * 1.5 - camera.position.x) * 0.05;
       camera.position.y += (-mouseY * 1.5 - camera.position.y) * 0.05;
       camera.lookAt(scene.position);

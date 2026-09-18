@@ -2,7 +2,7 @@
 import Signup from './components/Signup'
 import './App.css'
 import { Navigate, BrowserRouter, Route, Routes, Outlet } from 'react-router-dom'
-import Login from './components/Login'
+// import Login from './components/Login'
 import { PageNotFound } from './components/PageNotFound'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import Homepage from './components/Homepage'
@@ -53,7 +53,7 @@ function App() {
 
           <Route element={<PublicRouteGuard />}>
             <Route path='/signup' element={<Signup />} />
-            <Route path='/login' element={<Login />} />
+            {/* <Route path='/login' element={<Login />} /> */}
           </Route>
 
           <Route element={<ProtectedRouteGuard />}>

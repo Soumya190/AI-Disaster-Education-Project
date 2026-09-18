@@ -1,14 +1,17 @@
-import express from 'express';
 import dotenv from 'dotenv';
-import nodemon from 'nodemon';
-import router from './routes/authRouter.ts';
-
 dotenv.config();
 
-const app =  express();
-const PORT = process.env.PORT;
+import express from 'express';
+import router from './routes/authRouter';
 import cors from 'cors';
-import models from './models/dbConnections.ts';
+
+
+const app =  express();
+const PORT = process.env.PORT||8003;
+
+import  './models/dbConnections';
+
+
 
 app.use(cors({
     origin: 'http://localhost:5173',
