@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useState } from "react";
-import { googleAuth } from "./api";
+import { signUpData } from "./api";
 
 const Signup = () => {
     const initialValues = {
@@ -12,67 +12,75 @@ const Signup = () => {
 
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    const [formValues, setFormValues] = useState(initialValues);
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [formValues,setFormValues] = useState(initialValues);
+    const [error,setError]=useState({
+        'name':'',
+        'email':'',
+        'password':''
+    })
 
-    const nameRegex = /^[a-zA-Z\s]{2,30}$/;
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/; 
+    const handleForm=(e:React.ChangeEvent<HTMLInputElement>)=>{
+        const{name,value}= e.target;
+        setFormValues(prev=>({...prev,[name]:value}));
+        setError(prev=>({...prev,[name]:''}));
+    }
 
-    const validateForm = () => {
-        let tempErrors: Record<string, string> = {};
+    const validateForm=()=>{
+            let isValid = true;
+            let newErrors = {name:'',email:'',password:''};
 
-        if (!formValues.name.trim()) {
-            tempErrors.name = "Full Name is required.";
-        } else if (!nameRegex.test(formValues.name)) {
-            tempErrors.name = "Name must contain only letters (min 2 characters).";
-        }
+            if(!formValues.name.trim()){
+                newErrors.name = "Name is required";
+                isValid = false;
+            }
+            if(!formValues.email.trim()){
+                newErrors.email = 'Email address is required';
+                isValid = false;
+            }
+            else if(!/\S+@\S+\.\S+/.test(formValues.email)){
+                newErrors.email = 'Please enter a valid email address';
+                isValid = false;
+            }
 
-        if (!formValues.email.trim()) {
-            tempErrors.email = "Email address is required.";
-        } else if (!emailRegex.test(formValues.email)) {
-            tempErrors.email = "Please enter a valid email address.";
-        }
+            if(!formValues.password){
+                newErrors.password = "Password is required";
+                isValid = false;
+            }
+            else if(formValues.password.length<6){
+                newErrors.password = "Password mush be atleast 6 characters";
+                isValid = false;
+            }
 
-        if (!formValues.password) {
-            tempErrors.password = "Password is required.";
-        } else if (!passwordRegex.test(formValues.password)) {
-            tempErrors.password = "Password must be at least 8 characters long and include an uppercase letter, lowercase letter, number, and special character.";
-        }
-
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
-
-    const handleForm = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
-        setFormValues({ ...formValues, [name]: value });
-        
-      
-        if (errors[name]) {
-            setErrors({ ...errors, [name]: "" });
-        }
-    };
+            setError(newErrors);
+            return isValid;
+    }
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if(!validateForm()) return ;
 
-        if (validateForm()) {
-            setIsLoading(true);
-            try {
-               
-                localStorage.setItem('user-info', JSON.stringify({
-                    name: formValues.name,
-                    email: formValues.email
+        setIsLoading(true);
+        try{
+            await signUpData(formValues);
+            navigate('/homepage');
+        }
+        catch(err:any){
+            console.error("Signup failed:", err);
+            
+            const errorMessage = err?.response?.data?.message || "";
+            const statusCode = err?.response?.status;
+
+            if (statusCode === 409 || (statusCode === 400 && errorMessage.toLowerCase().includes("email"))) {
+                setError(prev => ({
+                    ...prev,
+                    email: "This email is already registered. Please log in instead."
                 }));
-
-               
-                navigate('/Homepage'); 
-            } catch (error) {
-                console.error("Signup failed:", error);
-            } finally {
-                setIsLoading(false);
+            } else {
+                alert(errorMessage || "Something went wrong during signup.");
             }
+        }
+        finally{
+            setIsLoading(false);
         }
     };
 
@@ -84,18 +92,10 @@ const Signup = () => {
             }
 
             setIsLoading(true);
-            const result = await googleAuth(authResult.code);
-            
-            if (result?.data?.user) {
-                const { email, name, image } = result.data.user;
-                const token = result.data.token;
-                const obj = { email, name, image, token };
 
-                localStorage.setItem('user-info', JSON.stringify(obj));
-                navigate('/dashboard');
-            } else {
-                throw new Error("Invalid payload structure returned from authentication endpoints.");
-            }
+            // const response = await googleAuth(authResult.code);
+
+            navigate('/homepage');
         } catch (err) {
             console.error("Error generating auth credentials pipeline:", err); 
             alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
@@ -155,16 +155,16 @@ const Signup = () => {
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
                                 <input
+                                    type="name"
+                                    autoComplete="off"
                                     name="name"
-                                    type="text"
+                                    id="name"
                                     value={formValues.name}
                                     onChange={handleForm}
                                     placeholder="Enter your name"
-                                    className={`w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all placeholder:text-slate-400 ${
-                                        errors.name ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
-                                    }`}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
                                 />
-                                {errors.name && <p className="text-xs text-red-500 ml-1 font-medium">{errors.name}</p>}
+                                {error.name && <p className="text-xs text-red-500 ml-1 font-medium">{error.name}</p>}
                             </div>
 
                             <div className="space-y-1.5">
@@ -172,14 +172,14 @@ const Signup = () => {
                                 <input
                                     name="email"
                                     type="email"
+                                    autoComplete="off"
+                                    id="email"
                                     value={formValues.email}
                                     onChange={handleForm}
                                     placeholder="name@company.com"
-                                    className={`w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all placeholder:text-slate-400 ${
-                                        errors.email ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
-                                    }`}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
                                 />
-                                {errors.email && <p className="text-xs text-red-500 ml-1 font-medium">{errors.email}</p>}
+                                {error.email && <p className="text-xs text-red-500 ml-1 font-medium">{error.email}</p>}
                             </div>
 
                             <div className="space-y-1.5">
@@ -190,11 +190,9 @@ const Signup = () => {
                                     value={formValues.password}
                                     onChange={handleForm}
                                     placeholder="••••••••"
-                                    className={`w-full px-5 py-3.5 md:py-2.5 bg-slate-50 border rounded-xl focus:bg-white focus:ring-4 focus:ring-blue-50 outline-none transition-all placeholder:text-slate-400 ${
-                                        errors.password ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-blue-500'
-                                    }`}
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-50 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
                                 />
-                                {errors.password && <p className="text-xs text-red-500 ml-1 font-medium">{errors.password}</p>}
+                                {error.password && <p className="text-xs text-red-500 ml-1 font-medium">{error.password}</p>}
                             </div>
 
                             <button 

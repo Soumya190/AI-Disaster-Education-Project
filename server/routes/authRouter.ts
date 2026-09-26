@@ -1,12 +1,14 @@
 import express from 'express';
-import googleLogin from '../controllers/authController';
+import { googleLogin, signup } from '../controllers/authController';
 
 const router = express.Router();
 
-router.get('/test',(req,res)=>{
+router.get('/test', (req, res) => {
     res.send("test page");
-})
+});
 
-router.get('/google',googleLogin);
+router.get('/google', googleLogin);
+
+router.post('/signup', signup);
 
 export default router;

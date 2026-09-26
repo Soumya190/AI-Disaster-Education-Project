@@ -7,3 +7,4 @@ const api = axios.create({
 
 export const googleAuth = (code:string) => api.get(`/google?code=${code}`);
 
+export const signUpData =(userData:any)=>api.post('/signup',userData);
