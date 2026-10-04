@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useState } from "react";
-import { signUpData } from "./api";
+import { signUpData, googleAuth } from "./api";
 
 const Signup = () => {
     const initialValues = {
@@ -12,62 +12,93 @@ const Signup = () => {
 
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
-    const [formValues,setFormValues] = useState(initialValues);
-    const [error,setError]=useState({
-        'name':'',
-        'email':'',
-        'password':''
+    const [formValues, setFormValues] = useState(initialValues);
+    const [error, setError] = useState({
+        'name': '',
+        'email': '',
+        'password': ''
     })
 
-    const handleForm=(e:React.ChangeEvent<HTMLInputElement>)=>{
-        const{name,value}= e.target;
-        setFormValues(prev=>({...prev,[name]:value}));
-        setError(prev=>({...prev,[name]:''}));
+    const handleForm = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormValues(prev => ({ ...prev, [name]: value }));
+        setError(prev => ({ ...prev, [name]: '' }));
     }
 
-    const validateForm=()=>{
-            let isValid = true;
-            let newErrors = {name:'',email:'',password:''};
+    const validateForm = () => {
+        let isValid = true;
+        let newErrors = { name: '', email: '', password: '' };
 
-            if(!formValues.name.trim()){
-                newErrors.name = "Name is required";
-                isValid = false;
-            }
-            if(!formValues.email.trim()){
-                newErrors.email = 'Email address is required';
-                isValid = false;
-            }
-            else if(!/\S+@\S+\.\S+/.test(formValues.email)){
-                newErrors.email = 'Please enter a valid email address';
-                isValid = false;
-            }
+        if (!formValues.name.trim()) {
+            newErrors.name = "Name is required";
+            isValid = false;
+        }
+        if (!formValues.email.trim()) {
+            newErrors.email = 'Email address is required';
+            isValid = false;
+        }
+        else if (!/\S+@\S+\.\S+/.test(formValues.email)) {
+            newErrors.email = 'Please enter a valid email address';
+            isValid = false;
+        }
 
-            if(!formValues.password){
-                newErrors.password = "Password is required";
-                isValid = false;
-            }
-            else if(formValues.password.length<6){
-                newErrors.password = "Password mush be atleast 6 characters";
-                isValid = false;
-            }
+        if (!formValues.password) {
+            newErrors.password = "Password is required";
+            isValid = false;
+        }
+        else if (formValues.password.length < 6) {
+            newErrors.password = "Password mush be atleast 6 characters";
+            isValid = false;
+        }
 
-            setError(newErrors);
-            return isValid;
+        setError(newErrors);
+        return isValid;
     }
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if(!validateForm()) return ;
+        console.log("=== 1. SUBMIT BUTTON CLICKED ==="); // This will tell us if the button works
+
+        const isValid = validateForm();
+        console.log("=== 2. FORM VALIDATION RESULT ===", isValid);
+        if(!isValid) {
+            console.log("Form validation failed. Stopping execution.");
+            return;
+        }
 
         setIsLoading(true);
-        try{
-            await signUpData(formValues);
+        try {
+            console.log("=== 3. CALLING signUpData API ===");
+            const response = await signUpData(formValues);
+            console.log("=== 4. RAW API RESPONSE ===", response);
+            
+            const responseData = response?.data ? response.data : response;
+            console.log("=== 5. PROCESSED RESPONSE DATA ===", responseData);
+
+            if (responseData && responseData.token) {
+                localStorage.setItem('token', responseData.token);
+                
+                const sessionData = {
+                    token: responseData.token,
+                    name: responseData.user?.name,
+                    email: responseData.user?.email,
+                    image: responseData.user?.profilePic || responseData.user?.image || ""
+                };
+                
+                localStorage.setItem('user-info', JSON.stringify(sessionData));
+                console.log("=== 6. SAVED TO LOCALSTORAGE SUCCESSFULLY ===");
+            } else {
+                console.warn("=== WARNING: Token missing from responseData ===");
+            }
+
+            console.log("=== 7. NAVIGATING TO /homepage ===");
             navigate('/homepage');
         }
-        catch(err:any){
-            console.error("Signup failed:", err);
+        catch(err: any) {
+            console.error("=== CATCH BLOCK TRIGGERED ===", err);
+            console.error("Error response details:", err?.response);
             
-            const errorMessage = err?.response?.data?.message || "";
+            const errorMessage = err?.response?.data?.message || err?.message || "";
             const statusCode = err?.response?.status;
 
             if (statusCode === 409 || (statusCode === 400 && errorMessage.toLowerCase().includes("email"))) {
@@ -79,7 +110,7 @@ const Signup = () => {
                 alert(errorMessage || "Something went wrong during signup.");
             }
         }
-        finally{
+        finally {
             setIsLoading(false);
         }
     };
@@ -93,11 +124,27 @@ const Signup = () => {
 
             setIsLoading(true);
 
-            // const response = await googleAuth(authResult.code);
+            const response = await googleAuth(authResult.code);
 
+            if (response.data && response.data.token) {
+                localStorage.setItem('token', response.data.token);
+
+                const sessionData = {
+                    token: response.data.token,
+                    name: response.data.user?.name,
+                    email: response.data.user?.email,
+                    image: response.data.user?.profilePic || response.data.user?.image || ""
+                };
+
+                localStorage.setItem('user-info', JSON.stringify(sessionData));
+                // Optionally store user data if needed:
+                // localStorage.setItem('user', JSON.stringify(response.data.user));
+            }
+
+            console.log("Attempting navigation to /homepage...");
             navigate('/homepage');
         } catch (err) {
-            console.error("Error generating auth credentials pipeline:", err); 
+            console.error("Error generating auth credentials pipeline:", err);
             alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
         } finally {
             setIsLoading(false);
@@ -135,7 +182,7 @@ const Signup = () => {
                     </div>
 
                     <div className="bg-white p-7 md:p-10 rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-white/50">
-                        <button 
+                        <button
                             type="button"
                             onClick={() => googleLogin()}
                             className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 py-2.5 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98]"
@@ -195,8 +242,8 @@ const Signup = () => {
                                 {error.password && <p className="text-xs text-red-500 ml-1 font-medium">{error.password}</p>}
                             </div>
 
-                            <button 
-                                type="submit" 
+                            <button
+                                type="submit"
                                 disabled={isLoading}
                                 className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold py-2.5 rounded-xl shadow-xl shadow-blue-900/10 transition-all active:scale-[0.98] mt-4 disabled:opacity-50"
                             >

@@ -11,8 +11,6 @@ const PORT = process.env.PORT||8003;
 
 import  './models/dbConnections';
 
-
-
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials:true

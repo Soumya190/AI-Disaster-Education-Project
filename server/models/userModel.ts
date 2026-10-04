@@ -7,7 +7,7 @@ class UserModel {
         return rows[0];
     }
 
-    static async create({ name, email, password=null, profilePic = null }: any) {
+    static async create({ name, email, password=null, profilePic = null,createdAt= new Date() }: any) {
         let hashedPassword = null;
 
         // Only hash the password if it exists (manual sign up)
@@ -17,15 +17,16 @@ class UserModel {
         }
 
         const [result] = (await db.execute(
-            'INSERT INTO user (name, email, password, image) VALUES (?, ?, ?, ?)', 
-            [name, email, hashedPassword, profilePic]
+            'INSERT INTO user (name, email, password, image,created_at) VALUES (?, ?, ?, ?, ?)', 
+            [name, email, hashedPassword, profilePic,createdAt]
         )) as any;
 
         return {
             id: result.insertId,
             name,
             email,
-            profilePic
+            profilePic,
+            createdAt
         };
     }
 }

@@ -15,7 +15,7 @@ export const googleLogin = async (req: any, res: any) => {
 
     try {
         const { code } = req.query;
-        
+
         if (!code) {
             return res.status(400).json({
                 message: "Authorization code is required"
@@ -33,7 +33,8 @@ export const googleLogin = async (req: any, res: any) => {
 
         if (!user) {
             // Google users don't have passwords, so password can be null/empty
-            user = await UserModel.create({ name, email, password: null, profilePic: picture });
+            // user = await UserModel.create({ name, email, password: null, profilePic: picture });
+            user = await UserModel.create({ name, email, password: null, profilePic: picture, createdAt: new Date() });
         }
 
         const userId = user.id || user.user_id;
@@ -58,7 +59,7 @@ export const googleLogin = async (req: any, res: any) => {
 
         return res.status(500).json({
             message: "Internal server error",
-            error: err.message 
+            error: err.message
         });
     }
 };
@@ -70,16 +71,25 @@ export const signup = async (req: any, res: any) => {
         // 1. Check if email already exists
         const existingUser = await UserModel.findByEmail(email);
         if (existingUser) {
-            return res.status(409).json({ 
-                message: "This email is already registered. Please log in instead." 
+            return res.status(409).json({
+                message: "This email is already registered. Please log in instead."
             });
         }
 
         // 2. Create new user (Email/Password signup)
-        const newUser = await UserModel.create({ name, email, password });
+        const newUser = await UserModel.create({ name, email, password,profilePic: null, 
+            createdAt: new Date() });
+            
 
-        return res.status(201).json({ 
+        const token = jwt.sign(
+            { userId: newUser.id },
+            process.env.JWT_SECRET || "fallback_secret",
+            { expiresIn: process.env.JWT_TIMEOUT || '24h'  as any}
+        );
+
+        return res.status(201).json({
             message: "User registered successfully!",
+            token,
             user: newUser
         });
 
