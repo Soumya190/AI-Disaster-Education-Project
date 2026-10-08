@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useGoogleLogin } from '@react-oauth/google';
 import { useState } from "react";
-import { signUpData, googleAuth } from "./api";
+import { signUpData, googleSignupApi } from "./api";
 
 const Signup = () => {
     const initialValues = {
@@ -47,7 +47,7 @@ const Signup = () => {
             isValid = false;
         }
         else if (formValues.password.length < 6) {
-            newErrors.password = "Password mush be atleast 6 characters";
+            newErrors.password = "Password must be atleast 6 characters";
             isValid = false;
         }
 
@@ -124,7 +124,7 @@ const Signup = () => {
 
             setIsLoading(true);
 
-            const response = await googleAuth(authResult.code);
+            const response = await googleSignupApi(authResult.code);
 
             if (response.data && response.data.token) {
                 localStorage.setItem('token', response.data.token);
@@ -143,9 +143,18 @@ const Signup = () => {
 
             console.log("Attempting navigation to /homepage...");
             navigate('/homepage');
-        } catch (err) {
+        } catch (err: any) {
             console.error("Error generating auth credentials pipeline:", err);
-            alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
+            
+            // Catch the backend 409 conflict if email already exists
+            const errorMessage = err?.response?.data?.message || "";
+            const statusCode = err?.response?.status;
+
+            if (statusCode === 409) {
+                alert(errorMessage || "This email is already registered. Please log in instead.");
+            } else {
+                alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -202,7 +211,7 @@ const Signup = () => {
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700 ml-1">Full Name</label>
                                 <input
-                                    type="name"
+                                    type="text"
                                     autoComplete="off"
                                     name="name"
                                     id="name"

@@ -1,9 +1,10 @@
-import { googleAuth } from "./api";
-import { NavLink } from "react-router-dom";
+import { googleLoginApi, loginData } from "./api";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 
 const Login = () => {
+    const navigate = useNavigate();
     const [values, setValues] = useState({
         email: '',
         password: "",
@@ -15,9 +16,36 @@ const Login = () => {
         setValues({ ...values, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Form submitted values:", values);
+        setIsLoading(true);
+
+        try {
+            const response = await loginData(values);
+            const responseData = response?.data ? response.data : response;
+
+            if (responseData && responseData.token) {
+                localStorage.setItem('token', responseData.token);
+
+                const sessionData = {
+                    token: responseData.token,
+                    name: responseData.user?.name,
+                    email: responseData.user?.email,
+                    image: responseData.user?.profilePic || responseData.user?.image || ""
+                };
+
+                localStorage.setItem('user-info', JSON.stringify(sessionData));
+                navigate('/homepage');
+            } else {
+                throw new Error("Invalid response structure.");
+            }
+        } catch (err: any) {
+            console.error("Login failed:", err);
+            const errorMessage = err?.response?.data?.message || err?.message || "Login failed. Please check your credentials.";
+            alert(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const authResponse = async (authResult: any) => {
@@ -28,25 +56,29 @@ const Login = () => {
             }
 
             setIsLoading(true);
-            const result = await googleAuth(authResult.code);
+            const result = await googleLoginApi(authResult.code);
+            const responseData = result?.data ? result.data : result;
 
-            if (result?.data?.user) {
-                const { email, name, image } = result.data.user;
-                const token = result.data.token;
-                const obj = { email, name, image, token };
+            if (responseData && responseData.token) {
+                localStorage.setItem('token', responseData.token);
 
-                
-                localStorage.setItem('user-info', JSON.stringify(obj));
+                const sessionData = {
+                    token: responseData.token,
+                    name: responseData.user?.name,
+                    email: responseData.user?.email,
+                    image: responseData.user?.profilePic || responseData.user?.image || ""
+                };
 
-                
-                window.location.href = '/homepage';
+                localStorage.setItem('user-info', JSON.stringify(sessionData));
+                navigate('/homepage');
             } else {
                 throw new Error("Invalid payload structure returned from authentication endpoints.");
             }
         }
-        catch (err) {
+        catch (err: any) {
             console.error("Error generating auth credentials pipeline:", err);
-            alert("Authentication failed. Please verify your internet connection or backend endpoint routing.");
+            const errorMessage = err?.response?.data?.message || "Authentication failed. Please verify your credentials or sign up first.";
+            alert(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -66,7 +98,6 @@ const Login = () => {
                     <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-[100px]" />
                     <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] bg-indigo-100/50 rounded-full blur-[100px]" />
                 </div>
-
               
                 <nav className="absolute top-8 left-8 z-20">
                     <NavLink
@@ -77,11 +108,9 @@ const Login = () => {
                         Return to Command Center
                     </NavLink>
                 </nav>
-
                 
                 <main className="flex items-center justify-center min-h-screen p-6">
                     <div className="w-full max-w-[460px] animate-in fade-in zoom-in duration-500">
-
                         
                         <div className="text-center mb-8">
                             <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-4">
@@ -91,7 +120,6 @@ const Login = () => {
                                 Secure access to your mission dashboard
                             </p>
                         </div>
-
                     
                         <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl shadow-slate-200 border border-white">
                             <form className="space-y-6" onSubmit={handleSubmit}>
@@ -104,7 +132,7 @@ const Login = () => {
                                         className="w-full flex items-center justify-center gap-3 bg-white border border-slate-200 py-2.5 rounded-2xl font-bold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-all active:scale-[0.98] disabled:opacity-50"
                                     >
                                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy" alt="google logo" className="w-5 h-5" />
-                                        <span>{isLoading ? "Connecting..." : "Sign up with Google"}</span>
+                                        <span>{isLoading ? "Connecting..." : "Sign in with Google"}</span>
                                     </button>
 
                                     <div className="relative my-6 text-center">
@@ -154,7 +182,6 @@ const Login = () => {
                                 </button>
                             </form>
                         </div>
-
                     
                         <p className="text-center mt-10 text-slate-500 font-medium">
                             Don&apos;t have an account?{" "}

@@ -10,97 +10,116 @@ const client = new OAuth2Client(
     'postmessage'
 );
 
-export const googleLogin = async (req: any, res: any) => {
-    console.log("!!! CONTROLLER HIT !!! Request query:", req.query);
-
+// ==========================================
+// 1. GOOGLE SIGNUP (Creates account if new)
+// ==========================================
+export const googleSignup = async (req: any, res: any) => {
     try {
         const { code } = req.query;
-
-        if (!code) {
-            return res.status(400).json({
-                message: "Authorization code is required"
-            });
-        }
+        if (!code) return res.status(400).json({ message: "Authorization code is required" });
 
         const googleResponse = await client.getToken(code as string);
         client.setCredentials(googleResponse.tokens);
 
         const userInfoRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`);
-
         const { name, email, picture } = userInfoRes.data;
 
         let user = await UserModel.findByEmail(email);
-
-        if (!user) {
-            // Google users don't have passwords, so password can be null/empty
-            // user = await UserModel.create({ name, email, password: null, profilePic: picture });
-            user = await UserModel.create({ name, email, password: null, profilePic: picture, createdAt: new Date() });
+        if (user) {
+            return res.status(409).json({ message: "This email is already registered. Please log in instead." });
         }
 
+        user = await UserModel.create({ name, email, password: null, profilePic: picture, createdAt: new Date() });
+
         const userId = user.id || user.user_id;
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET || "fallback_secret", { expiresIn: '24h' });
 
-        const token = jwt.sign(
-            { userId },
-            process.env.JWT_SECRET || "fallback_secret",
-            {
-                expiresIn: process.env.JWT_TIMEOUT || '24h' as any
-            }
-        );
-
-        return res.status(200).json({
-            message: "success",
-            token,
-            user
-        });
+        return res.status(201).json({ message: "User registered successfully!", token, user });
     } catch (err: any) {
-        console.error("=================== GOOGLE AUTH CRASH ===================");
-        console.error(err);
-        console.error("=========================================================");
-
-        return res.status(500).json({
-            message: "Internal server error",
-            error: err.message
-        });
+        console.error("GOOGLE SIGNUP CRASH:", err);
+        return res.status(500).json({ message: "Internal server error", error: err.message });
     }
 };
 
+// ==========================================
+// 2. GOOGLE LOGIN (Fails if account doesn't exist)
+// ==========================================
+export const googleLogin = async (req: any, res: any) => {
+    try {
+        const { code } = req.query;
+        if (!code) return res.status(400).json({ message: "Authorization code is required" });
+
+        const googleResponse = await client.getToken(code as string);
+        client.setCredentials(googleResponse.tokens);
+
+        const userInfoRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleResponse.tokens.access_token}`);
+        const { email } = userInfoRes.data;
+
+        const user = await UserModel.findByEmail(email);
+        if (!user) {
+            return res.status(404).json({ message: "No account found with this email. Please sign up first." });
+        }
+
+        const userId = user.id || user.user_id;
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET || "fallback_secret", { expiresIn: '24h' });
+
+        return res.status(200).json({ message: "success", token, user });
+    } catch (err: any) {
+        console.error("GOOGLE LOGIN CRASH:", err);
+        return res.status(500).json({ message: "Internal server error", error: err.message });
+    }
+};
+
+// ==========================================
+// 3. MANUAL SIGNUP (Email & Password)
+// ==========================================
 export const signup = async (req: any, res: any) => {
     try {
         const { name, email, password } = req.body;
 
-        // 1. Check if email already exists
         const existingUser = await UserModel.findByEmail(email);
         if (existingUser) {
-            return res.status(409).json({
-                message: "This email is already registered. Please log in instead."
-            });
+            return res.status(409).json({ message: "This email is already registered. Please log in instead." });
         }
 
-        // 2. Create new user (Email/Password signup)
-        const newUser = await UserModel.create({ name, email, password,profilePic: null, 
-            createdAt: new Date() });
-            
+        const defaultProfilePic = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&bold=true`;
 
-        const token = jwt.sign(
-            { userId: newUser.id },
-            process.env.JWT_SECRET || "fallback_secret",
-            { expiresIn: process.env.JWT_TIMEOUT || '24h'  as any}
-        );
+        const newUser = await UserModel.create({ name, email, password, profilePic: defaultProfilePic, createdAt: new Date() });
 
-        return res.status(201).json({
-            message: "User registered successfully!",
-            token,
-            user: newUser
-        });
+        const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET || "fallback_secret", { expiresIn: '24h' });
 
+        return res.status(201).json({ message: "User registered successfully!", token, user: newUser });
     } catch (err: any) {
-        console.error("=================== SIGNUP CRASH ===================");
-        console.error(err);
-        console.error("====================================================");
+        console.error("SIGNUP CRASH:", err);
+        return res.status(500).json({ message: "Internal server error", error: err.message });
+    }
+};
 
-        return res.status(500).json({
-            message: "Internal server error",
-            error: err.message
-        });
+// ==========================================
+// 4. MANUAL LOGIN (Email & Password)
+// ==========================================
+export const login = async (req: any, res: any) => {
+    try {
+        const { email, password } = req.body;
+
+        // Check if user exists
+        const user = await UserModel.findByEmail(email);
+        if (!user) {
+            return res.status(404).json({ message: "No account found with this email. Please sign up first." });
+        }
+
+        // Check if password matches using bcrypt
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Invalid email or password." });
+        }
+
+        const userId = user.id || user.user_id;
+        const token = jwt.sign({ userId }, process.env.JWT_SECRET || "fallback_secret", { expiresIn: '24h' });
+
+        return res.status(200).json({ message: "Login successful!", token, user });
+    } catch (err: any) {
+        console.error("LOGIN CRASH:", err);
+        return res.status(500).json({ message: "Internal server error", error: err.message });
     }
 };
