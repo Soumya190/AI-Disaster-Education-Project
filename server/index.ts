@@ -1,10 +1,13 @@
 import dotenv from 'dotenv';
+
+
+dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenAI, Type } from '@google/genai';
 import router from './routes/authRouter';
 
-dotenv.config();
+console.log("🔥 EXPRESS IS BOOTING UP. ROUTER ATTACHED:", !!router);
 
 console.log("API Key Status:", process.env.GEMINI_API_KEY ? "Loaded Successfully!" : "MISSING ❌");
 
@@ -27,21 +30,35 @@ app.get('/', (req, res) => {
 
 app.use('/auth', router);
 
-async function generateWithRetry(aiClient:any, payload:any, maxRetries = 3, delay = 2000) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+// Helper function to retry with exponential backoff AND model fallback
+async function generateWithModelFallback(aiClient:any, prompt:any, schemaConfig:any) {
+  // List of models to try in order of preference
+  const modelsToTry = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-1.5-flash'];
+
+  for (const modelName of modelsToTry) {
     try {
-      return await aiClient.models.generateContent(payload);
-    } catch (error:any) {
+      console.log(`Attempting generation with model: ${modelName}...`);
       
-      if (error.status === 503 && attempt < maxRetries) {
-        console.warn(`Gemini model experiencing high demand (503). Retrying attempt ${attempt} of ${maxRetries} in ${delay}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, delay));
-        delay *= 2;
+      const response = await aiClient.models.generateContent({
+        model: modelName,
+        contents: prompt,
+        config: schemaConfig
+      });
+
+      return response; // Success! Return response immediately
+    } catch (error:any) {
+      console.warn(`Model ${modelName} failed with status ${error.status || 'unknown'}.`);
+      
+      // If it's a 503 (High Demand), loop to the next model in the list
+      if (error.status === 503 || error.status === 404) {
+        continue; 
       } else {
-        throw error;
+        throw error; // Throw other critical errors (like bad keys) immediately
       }
     }
   }
+
+  throw new Error('All backup Gemini models are currently experiencing high demand. Please try again shortly.');
 }
 
 // Inside your POST endpoint:
@@ -58,38 +75,36 @@ app.post('/api/analyze-disaster', async (req, res) => {
       Provide a risk assessment structured strictly as JSON matching the requested schema.
     `;
 
-    // Call Gemini with the auto-retry wrapper
-    const response = await generateWithRetry(ai, {
-      model: 'gemini-3.8-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            riskLevel: {
-              type: Type.STRING,
-              enum: ['LOW', 'MODERATE', 'HIGH', 'CRITICAL'],
-              description: 'The overall disaster risk level based on the environmental data.'
-            },
-            title: {
-              type: Type.STRING,
-              description: 'A clear title summarizing the hazard advisory.'
-            },
-            summary: {
-              type: Type.STRING,
-              description: 'A 2-3 sentence summary explaining why this risk level was assigned based on metrics like rain, wind speed, or soil moisture.'
-            },
-            suggestions: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: '3 practical, actionable safety suggestions for the user.'
-            }
+    const schemaConfig = {
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          riskLevel: {
+            type: Type.STRING,
+            enum: ['LOW', 'MODERATE', 'HIGH', 'CRITICAL'],
+            description: 'The overall disaster risk level based on the environmental data.'
           },
-          required: ['riskLevel', 'title', 'summary', 'suggestions']
-        }
+          title: {
+            type: Type.STRING,
+            description: 'A clear title summarizing the hazard advisory.'
+          },
+          summary: {
+            type: Type.STRING,
+            description: 'A 2-3 sentence summary explaining why this risk level was assigned based on metrics like rain, wind speed, or soil moisture.'
+          },
+          suggestions: {
+            type: Type.ARRAY,
+            items: { type: Type.STRING },
+            description: '3 practical, actionable safety suggestions for the user.'
+          }
+        },
+        required: ['riskLevel', 'title', 'summary', 'suggestions']
       }
-    });
+    };
+
+    // Call using the multi-model fallback wrapper
+    const response = await generateWithModelFallback(ai, prompt, schemaConfig);
 
     const resultJson = JSON.parse(response.text);
     res.json(resultJson);
@@ -99,6 +114,7 @@ app.post('/api/analyze-disaster', async (req, res) => {
     res.status(500).json({ error: 'Failed to analyze disaster risk due to high server demand. Please try again in a moment.' });
   }
 });
+
 
 // 6. Start Server (Must be at the VERY BOTTOM)
 app.listen(PORT, () => {

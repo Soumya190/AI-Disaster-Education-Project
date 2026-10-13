@@ -22,7 +22,7 @@ const handleFetchDisasterData = async (lat: number, lon: number, locationName: s
       const weatherData = await res.json();
 
       
-      const aiResponse = await fetch('http://localhost:8000/api/analyze-disaster', {
+      const aiResponse = await fetch('http://localhost:8001/api/analyze-disaster', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ locationName, weatherData })

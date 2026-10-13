@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: "http://localhost:8000/auth"
+    baseURL: "http://localhost:8001/auth"
 });
 
 // 1. For the Login Page (Rejects if user doesn't exist)
